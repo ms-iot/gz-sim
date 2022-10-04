@@ -7,7 +7,11 @@ set(cmd_script_configured "${cmd_script_generated}.configured")
 
 # Set the library_location variable to the relative path to the library file
 # within the install directory structure.
+if (WIN32)
+set(library_location "../../../${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:${ign_lib_target}>")
+else()
 set(library_location "../../../${CMAKE_INSTALL_LIBDIR}/$<TARGET_FILE_NAME:${ign_lib_target}>")
+endif()
 
 configure_file(
   "cmd${IGN_DESIGNATION}.rb.in"
@@ -63,7 +67,7 @@ configure_file(
 
 install(FILES ${model_configured} DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/ignition/)
 
-
+if (BUILD_TESTING)
 #===============================================================================
 # Generate the ruby script for internal testing.
 # Note that the major version of the library is included in the name.
@@ -117,6 +121,7 @@ set(ign_model_ruby_path "${cmd_model_script_generated_test}")
 configure_file(
   "model.yaml.in"
   "${CMAKE_BINARY_DIR}/test/conf/model${PROJECT_VERSION_MAJOR}.yaml" @ONLY)
+endif()
 
 #===============================================================================
 # Bash completion

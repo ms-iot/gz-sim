@@ -467,43 +467,72 @@ See https://github.com/ignitionrobotics/ign-gazebo/issues/44 for more info."
           exit(-1)
         end
 
-        serverPid = Process.fork do
-          ENV['RMT_PORT'] = '1500'
-          Process.setpgid(0, 0)
-          Process.setproctitle('ign gazebo server')
-          Importer.runServer(parsed, options['iterations'], options['run'],
-            options['hz'], options['levels'], options['network_role'],
-            options['network_secondaries'], options['record'],
-            options['record-path'], options['record-resources'],
-            options['log-overwrite'], options['log-compress'],
-            options['playback'], options['physics_engine'],
-            options['render_engine_server'], options['render_engine_gui'],
-            options['file'], options['record-topics'].join(':'),
-            options['wait_gui'],
-            options['headless-rendering'], options['record-period'])
-        end
+        if (ENV['OS'] == 'Windows_NT')
+          # Windows does not support Fork, so manually spawn new processes.
 
-        guiPid = Process.fork do
-          ENV['RMT_PORT'] = '1501'
-          Process.setpgid(0, 0)
-          Process.setproctitle('ign gazebo gui')
-          Importer.runGui(options['gui_config'], options['file'],
-              options['wait_gui'], options['render_engine_gui'])
-        end
+          cl = "ruby ign.rb gazebo server" + 
+            " --iterations" + options['iterations'] + 
+            " --run " + options['run'] +
+            " --hz " + options['hz'] +
+            " --levels " + options['levels'] +
+            " --network_role " + options['network_role'] +
+            " --network_secondaries " + options['network_secondaries'] +
+            " --record " + options['record'] +
+            " --record-path " +  options['record-path'] + 
+            " --record-resources " + options['record-resources'] +
+            " --log-overwrite " + options['log-overwrite'] +
+            " --log-compress " + options['log-compress'] +
+            " --playback " + options['playback'] +
+            " --physics_engine " + options['physics_engine'] +
+            " --render_engine_server " + options['render_engine_server'] +
+            " --render_engine_gui " + options['render_engine_gui'] +
+            " --file " + options['file'] +
+            " --record-topics " + options['record-topics'].join(':') +
+            " --wait_gui " + options['wait_gui'] +
+            " --headless-rendering " + options['headless-rendering'] +
+            " --record-period " + options['record-period'] +
 
-        Signal.trap("INT") {
-          self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
-          self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
-          return 1
-        }
+          serverPid = Process.spawn({"RMT_PORT" => "1500"}, cl);
 
-        # Wait for a child process to end
-        pid, status = Process.wait2
-
-        if pid == serverPid
-          self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
         else
-          self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
+          serverPid = Process.fork do
+            ENV['RMT_PORT'] = '1500'
+            Process.setpgid(0, 0)
+            Process.setproctitle('ign gazebo server')
+            Importer.runServer(parsed, options['iterations'], options['run'],
+              options['hz'], options['levels'], options['network_role'],
+              options['network_secondaries'], options['record'],
+              options['record-path'], options['record-resources'],
+              options['log-overwrite'], options['log-compress'],
+              options['playback'], options['physics_engine'],
+              options['render_engine_server'], options['render_engine_gui'],
+              options['file'], options['record-topics'].join(':'),
+              options['wait_gui'],
+              options['headless-rendering'], options['record-period'])
+          end
+
+          guiPid = Process.fork do
+            ENV['RMT_PORT'] = '1501'
+            Process.setpgid(0, 0)
+            Process.setproctitle('ign gazebo gui')
+            Importer.runGui(options['gui_config'], options['file'],
+                options['wait_gui'], options['render_engine_gui'])
+          end
+
+          Signal.trap("INT") {
+            self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
+            self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
+            return 1
+          }
+
+          # Wait for a child process to end
+          pid, status = Process.wait2
+
+          if pid == serverPid
+            self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
+          else
+            self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
+          end
         end
 
       # If the -s option was specified, then run only the server

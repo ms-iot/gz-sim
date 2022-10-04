@@ -2581,7 +2581,7 @@ void RenderUtil::ShowGrid()
   rendering::VisualPtr root = this->dataPtr->scene->RootVisual();
 
   // create gray material
-  rendering::MaterialPtr gray = this->dataPtr->scene->CreateMaterial();
+  rendering::MaterialPtr gray = this->dataPtr->scene->CreateMaterial("Default/Gray");
   gray->SetAmbient(0.7, 0.7, 0.7);
   gray->SetDiffuse(0.7, 0.7, 0.7);
   gray->SetSpecular(0.7, 0.7, 0.7);

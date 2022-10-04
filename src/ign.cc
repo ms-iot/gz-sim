@@ -34,25 +34,26 @@
 #include "ignition/gazebo/config.hh"
 #include "ignition/gazebo/Server.hh"
 #include "ignition/gazebo/ServerConfig.hh"
-
+#include "ignition/gazebo/ign/Export.hh"
 #include "ignition/gazebo/gui/Gui.hh"
 
 using namespace ignition;
 
 //////////////////////////////////////////////////
-extern "C" char *ignitionGazeboVersion()
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE char *ignitionGazeboVersion()
 {
   return strdup(IGNITION_GAZEBO_VERSION_FULL);
 }
 
 //////////////////////////////////////////////////
-extern "C" char *gazeboVersionHeader()
+
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE char *gazeboVersionHeader()
 {
   return strdup(IGNITION_GAZEBO_VERSION_HEADER);
 }
 
 //////////////////////////////////////////////////
-extern "C" void cmdVerbosity(
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE void cmdVerbosity(
     const char *_verbosity)
 {
   int verbosity = std::atoi(_verbosity);
@@ -67,13 +68,13 @@ extern "C" void cmdVerbosity(
 }
 
 //////////////////////////////////////////////////
-extern "C" const char *worldInstallDir()
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE const char *worldInstallDir()
 {
   return IGN_GAZEBO_WORLD_INSTALL_DIR;
 }
 
 //////////////////////////////////////////////////
-extern "C" const char *findFuelResource(
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE const char *findFuelResource(
     char *_pathToResource)
 {
   std::string path;
@@ -128,7 +129,7 @@ extern "C" const char *findFuelResource(
 }
 
 //////////////////////////////////////////////////
-extern "C" int runServer(const char *_sdfString,
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE int runServer(const char *_sdfString,
     int _iterations, int _run, float _hz, int _levels, const char *_networkRole,
     int _networkSecondaries, int _record, const char *_recordPath,
     int _recordResources, int _logOverwrite, int _logCompress,
@@ -412,7 +413,7 @@ extern "C" int runServer(const char *_sdfString,
 }
 
 //////////////////////////////////////////////////
-extern "C" int runGui(const char *_guiConfig, const char *_file, int _waitGui,
+extern "C" IGNITION_GAZEBO_IGN_VISIBLE int runGui(const char *_guiConfig, const char *_file, int _waitGui,
   const char *_renderEngine)
 {
   // argc and argv are going to be passed to a QApplication. The Qt
