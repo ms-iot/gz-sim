@@ -86,6 +86,7 @@ function(gz_add_system system_name)
       COMMAND "${CMAKE_COMMAND}" -E copy
         "$<TARGET_FILE:${system_target}>"
         "$<TARGET_FILE_DIR:${system_target}>/${unversioned}")
+    INSTALL(FILES ${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/${unversioned} DESTINATION ${IGNITION_GAZEBO_PLUGIN_INSTALL_DIR})
   else()
     file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink ${versioned} ${unversioned} WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
