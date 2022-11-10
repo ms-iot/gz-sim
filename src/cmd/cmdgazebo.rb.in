@@ -493,6 +493,7 @@ See https://github.com/ignitionrobotics/ign-gazebo/issues/44 for more info."
             (options['record-topics'].count > 0) ? " --record-topics " + options['record-topics'].join(':').to_s() : "", 
             options['headless-rendering'] ? " --headless-rendering" : "", 
             (options['record-period'] > 0) ? " --record-period " + options['record-period'].to_s() : "",
+            " --verbose " + options['verbose'].to_s(),
             options['file'],
             :new_pgroup => true
           );
@@ -501,6 +502,7 @@ See https://github.com/ignitionrobotics/ign-gazebo/issues/44 for more info."
           guiPid = Process.spawn(ENV.to_hash(), RbConfig.ruby, ignFile, "gazebo", "-g",
             (options['gui_config'] != '') ? "--gui-config " + options['gui_config'].to_s() : "",
             (options['render_engine_gui'] != '') ? "--render-engine-gui " + options['render_engine_gui'] : "",
+            " --verbose " + options['verbose'].to_s(),
             options['file'],
             :new_pgroup => true
             );
@@ -508,15 +510,23 @@ See https://github.com/ignitionrobotics/ign-gazebo/issues/44 for more info."
 
           Signal.trap("INT") {
             begin
-            self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
-            self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
-            rescue
-              puts "Failewd to kill gazebo processes";
+              self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
+              self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
+              rescue
+                puts "Failed to kill gazebo processes";
+            end
             return 1
           }
 
           Process.waitpid(guiPid);
-        else
+
+          begin
+            self.killProcess(guiPid, "Ignition Gazebo GUI", 5.0)
+            self.killProcess(serverPid, "Ignition Gazebo Server", 5.0)
+            rescue
+              puts "Failed to kill gazebo processes";
+          end
+      else
           serverPid = Process.fork do
             ENV['RMT_PORT'] = '1500'
             Process.setpgid(0, 0)
